@@ -1,27 +1,27 @@
-﻿<html>
-  <head>
+﻿<head>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=no" />
-  </head>
-  <body>
-    <div id="MyViewerDiv"></div>
-    <button id="MyPrevButton" class="MyNavButton">Previous</button>
-    <button id="MyNextButton" class="MyNavButton">Next</button>
+    <meta charset="utf-8">
+
+    <!-- The Viewer CSS -->
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css" type="text/css">
+
+    <!-- Developer CSS -->
     <style>
-        .MyNavButton {
-          position: absolute;
-          top: 0;
-          z-index: 1;
-          padding: 1em;
-          font-size: 1em;
-          cursor: pointer;
+        body {
+            margin: 0;
         }
-        #MyPrevButton {
-          left: 0;
+        #MyViewerDiv {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background-color: #F0F8FF;
         }
-        #MyNextButton {
-          right: 0;
-        }
-      </style>
+    </style>
+</head>
+<body>
+
+    <!-- The Viewer will be instantiated here -->
+    <div id="MyViewerDiv"></div>
 
     <!-- The Viewer JS -->
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/three.min.js"></script>
@@ -29,10 +29,10 @@
 
     <!-- Developer JS -->
     <script>
-        var viewerApp;
+        var viewer;
         var options = {
-        env: 'AutodeskProduction',
-        getAccessToken: function(onGetAccessToken) {
+    env: 'AutodeskProduction',
+    getAccessToken: function(onGetAccessToken) {
         //
         // TODO: Replace static access token string below with call to fetch new token from your backend
         // Both values are provided by Forge's Authentication (OAuth) API.
@@ -44,53 +44,66 @@
         //    "expires_in": 86400
         // }
         //
-        var accessToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6Imp3dF9zeW1tZXRyaWNfa2V5In0.eyJjbGllbnRfaWQiOiJTYmVqbTJYTE5TZUFScjMyanIwYXNRR3loM2Z0cDA4YiIsImV4cCI6MTUyNTY3Nzc5Mywic2NvcGUiOlsiZGF0YTpyZWFkIiwiZGF0YTp3cml0ZSIsImRhdGE6Y3JlYXRlIiwiYnVja2V0OnJlYWQiLCJidWNrZXQ6Y3JlYXRlIl0sImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tL2F1ZC9qd3RleHA2MCIsImp0aSI6ImxWUVVlWnplTVlSTks3aEpwUDJRMjZsc1hKdEFNVVRyZ2VJc0NJQ3p1MFFUek10dW9EZVFpYkhoUnRzTUdiaG4ifQ.DqPI7wRapHIP47dODZ3NPeMh3A76s5CJay0aKZsBXKU';
+        var accessToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6Imp3dF9zeW1tZXRyaWNfa2V5In0.eyJjbGllbnRfaWQiOiJTYmVqbTJYTE5TZUFScjMyanIwYXNRR3loM2Z0cDA4YiIsImV4cCI6MTUyNTY4MjYyNywic2NvcGUiOlsiZGF0YTpyZWFkIiwiZGF0YTp3cml0ZSIsImRhdGE6Y3JlYXRlIiwiYnVja2V0OnJlYWQiLCJidWNrZXQ6Y3JlYXRlIl0sImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tL2F1ZC9qd3RleHA2MCIsImp0aSI6IlhGNGNLVjVMRHJkZjhwRzAxM1F2WHV4MEVLdkJ6d3h1ZDVpcUtHaHBwVXUwemRPOWRVZWw5VUV3em9pT3JMZm4ifQ.E4zJkXPcmKL6yDUtOVbXrVtZV6lPGkAgpYeMH4Kw5Vk';
         var expireTimeSeconds = 86400;
         onGetAccessToken(accessToken, expireTimeSeconds);
-    }
-}
-
-      var documentId = 'urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6aGRzZnNhMTIzNDU2L1cxMjM0LnJ2dA';
-      Autodesk.Viewing.Initializer(options, onInitialized);
-
-      function onInitialized() {
-        viewerApp = new Autodesk.Viewing.ViewingApplication('MyViewerDiv');
-        viewerApp.registerViewer(viewerApp.k3D, Autodesk.Viewing.Viewer3D);
-        viewerApp.loadDocument(documentId, onDocumentLoaded);
       }
+    };
+        var documentId = 'urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6aGRzZnNhMTIzNDU2Ny9XMTIzNC5ydnQ';
+        Autodesk.Viewing.Initializer(options, function onInitialized(){
+            Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
+        });
 
-      var currentIndex = 0; // New variable to keep track of loaded viewable.
+        /**
+        * Autodesk.Viewing.Document.load() success callback.
+        * Proceeds with model initialization.
+        */
+        function onDocumentLoadSuccess(doc) {
 
-function onDocumentLoaded(lmvDoc) {
-  var modelNodes = viewerApp.bubble.search(av.BubbleNode.MODEL_NODE); // 3D designs
-  var sheetNodes = viewerApp.bubble.search(av.BubbleNode.SHEET_NODE); // 2D designs
-  var allNodes = modelNodes.concat(sheetNodes);
-  if (allNodes.length) {
-    viewerApp.selectItem(allNodes[0].data);
-  }
+            // A document contains references to 3D and 2D viewables.
+            var viewables = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {'type':'geometry'}, true);
+            if (viewables.length === 0) {
+                console.error('Document contains no viewables.');
+                return;
+            }
 
-  createCustomUI(allNodes); // Create UI for Prev and Next buttons
-}
+            // Choose any of the avialble viewables
+            var initialViewable = viewables[0];
+            var svfUrl = doc.getViewablePath(initialViewable);
+            var modelOptions = {
+                sharedPropertyDbPath: doc.getPropertyDbPath()
+            };
 
-  function createCustomUI(allNodes) {
-    // Previous button
-var prevBtn = document.getElementById('MyPrevButton');
-  prevBtn.addEventListener('click', function(){
-    currentIndex = currentIndex === 0 ? (allNodes.length -1) : (currentIndex - 1);
-    loadModelCurrentIndex(allNodes);
-  });
-  // Next button
-  var nextBtn = document.getElementById('MyNextButton');
-  nextBtn.addEventListener('click', function(){
-    currentIndex = (currentIndex + 1) % allNodes.length;
-    loadModelCurrentIndex(allNodes);
-  });
-}
+            var viewerDiv = document.getElementById('MyViewerDiv');
+            viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerDiv);
+            viewer.start(svfUrl, modelOptions, onLoadModelSuccess, onLoadModelError);
+        }
 
-function loadModelCurrentIndex(allNodes) {
-  viewerApp.selectItem(allNodes[currentIndex].data);
-}
+        /**
+         * Autodesk.Viewing.Document.load() failuire callback.
+         */
+        function onDocumentLoadFailure(viewerErrorCode) {
+            console.error('onDocumentLoadFailure() - errorCode:' + viewerErrorCode);
+        }
+
+        /**
+         * viewer.loadModel() success callback.
+         * Invoked after the model's SVF has been initially loaded.
+         * It may trigger before any geometry has been downloaded and displayed on-screen.
+         */
+        function onLoadModelSuccess(model) {
+            console.log('onLoadModelSuccess()!');
+            console.log('Validate model loaded: ' + (viewer.model === model));
+            console.log(model);
+        }
+
+        /**
+         * viewer.loadModel() failure callback.
+         * Invoked when there's an error fetching the SVF file.
+         */
+        function onLoadModelError(viewerErrorCode) {
+            console.error('onLoadModelError() - errorCode:' + viewerErrorCode);
+        }
+
     </script>
-
-  </body>
-</html>
+</body>
