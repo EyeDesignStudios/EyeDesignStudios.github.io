@@ -29,11 +29,26 @@
 
     <!-- Developer JS -->
     <script>
-      var viewerApp;
-      var options = {
+        var viewerApp;
+        var options = {
         env: 'AutodeskProduction',
-        accessToken: 'eyJhbGciOiJIUzI1NiIsImtpZCI6Imp3dF9zeW1tZXRyaWNfa2V5In0.eyJjbGllbnRfaWQiOiJTYmVqbTJYTE5TZUFScjMyanIwYXNRR3loM2Z0cDA4YiIsImV4cCI6MTUyNTY3Nzc5Mywic2NvcGUiOlsiZGF0YTpyZWFkIiwiZGF0YTp3cml0ZSIsImRhdGE6Y3JlYXRlIiwiYnVja2V0OnJlYWQiLCJidWNrZXQ6Y3JlYXRlIl0sImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tL2F1ZC9qd3RleHA2MCIsImp0aSI6ImxWUVVlWnplTVlSTks3aEpwUDJRMjZsc1hKdEFNVVRyZ2VJc0NJQ3p1MFFUek10dW9EZVFpYkhoUnRzTUdiaG4ifQ.DqPI7wRapHIP47dODZ3NPeMh3A76s5CJay0aKZsBXKU'
-      };
+        getAccessToken: function(onGetAccessToken) {
+        //
+        // TODO: Replace static access token string below with call to fetch new token from your backend
+        // Both values are provided by Forge's Authentication (OAuth) API.
+        //
+        // Example Forge's Authentication (OAuth) API return value:
+        // {
+        //    "access_token": "<YOUR_APPLICATION_TOKEN>",
+        //    "token_type": "Bearer",
+        //    "expires_in": 86400
+        // }
+        //
+        var accessToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6Imp3dF9zeW1tZXRyaWNfa2V5In0.eyJjbGllbnRfaWQiOiJTYmVqbTJYTE5TZUFScjMyanIwYXNRR3loM2Z0cDA4YiIsImV4cCI6MTUyNTY3Nzc5Mywic2NvcGUiOlsiZGF0YTpyZWFkIiwiZGF0YTp3cml0ZSIsImRhdGE6Y3JlYXRlIiwiYnVja2V0OnJlYWQiLCJidWNrZXQ6Y3JlYXRlIl0sImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tL2F1ZC9qd3RleHA2MCIsImp0aSI6ImxWUVVlWnplTVlSTks3aEpwUDJRMjZsc1hKdEFNVVRyZ2VJc0NJQ3p1MFFUek10dW9EZVFpYkhoUnRzTUdiaG4ifQ.DqPI7wRapHIP47dODZ3NPeMh3A76s5CJay0aKZsBXKU';
+        var expireTimeSeconds = 86400;
+        onGetAccessToken(accessToken, expireTimeSeconds);
+    }
+}
 
       var documentId = 'urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6aGRzZnNhMTIzNDU2L1cxMjM0LnJ2dA';
       Autodesk.Viewing.Initializer(options, onInitialized);
